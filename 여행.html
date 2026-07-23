@@ -53,21 +53,6 @@
       -webkit-touch-callout: none;
     }
 
-    .ios-hint {
-      display: none;
-      margin-top: 14px;
-      padding: 10px 12px;
-      background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.22);
-      border-radius: 10px;
-      font-size: .74rem;
-      line-height: 1.55;
-      opacity: .92;
-    }
-    @media (hover: none) and (pointer: coarse) {
-      .ios-hint { display: block; }
-    }
-
     .app-error {
       display: none;
       margin: 16px;
@@ -712,8 +697,7 @@
 
 <noscript>
   <div style="padding:20px;font-family:sans-serif;line-height:1.6">
-    <strong>JavaScript가 꺼져 있어요.</strong><br>
-    아이패드에서는 파일 미리보기가 아니라 <strong>Safari에서 열기</strong>를 선택해 주세요.
+    <strong>JavaScript가 꺼져 있어요.</strong>
   </div>
 </noscript>
 
@@ -723,11 +707,6 @@
   <div class="hero-inner">
     <h1>후쿠오카 여행</h1>
     <div class="hero-sub">7/24(금) – 7/26(일) · 5명</div>
-    <div class="ios-hint">
-      📱 아이패드: 파일을 눌렀을 때 <strong>미리보기</strong>가 아니라<br>
-      <strong>공유(↗) → Safari에서 열기</strong>로 여세요.<br>
-      photos 폴더와 HTML을 <strong>같은 폴더</strong>에 두세요.
-    </div>
   </div>
 </div>
 
@@ -1551,7 +1530,7 @@ function initApp() {
     bindNav();
   } catch (err) {
     console.error(err);
-    showAppError("앱을 불러오지 못했어요. Safari에서 파일을 직접 열었는지, photos 폴더가 함께 있는지 확인해 주세요.");
+    showAppError("앱을 불러오지 못했어요. 페이지를 새로고침해 주세요.");
   }
 }
 
