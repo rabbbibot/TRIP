@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#faf8f5">
+  <title>후쿠오카 여행 7/24-26</title>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --bg2: #f0ece6;
+      --card: #ffffff;
+      --text: #1c1917;
+      --text2: #57534e;
+      --text3: #a8a29e;
+      --line: #e7e5e4;
+      --accent: #e11d48;
+      --accent-soft: #fff1f2;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.08);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --nav-h: 64px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      min-height: 100dvh;
+      padding-bottom: calc(var(--nav-h) + var(--safe-b) + 16px);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, .nav-btn, .day-seg-btn, .food-filter-btn {
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+    }
+
+    .ios-hint {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 10px;
+      font-size: .74rem;
+      line-height: 1.55;
+      opacity: .92;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .ios-hint { display: block; }
+    }
+
+    .app-error {
+      display: none;
+      margin: 16px;
+      padding: 14px 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-sm);
+      color: #991b1b;
+      font-size: .82rem;
+      line-height: 1.6;
+    }
+    .app-error.show { display: block; }
+
+    .app-loading {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text3);
+      font-size: .85rem;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(to right, #000000 0%, #ffffff 100%);
+      color: #fff;
+      padding: calc(20px + var(--safe-t)) 20px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: none;
+    }
+    .hero-inner { position: relative; z-index: 1; }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .hero-label {
+      font-size: .72rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; opacity: .7;
+    }
+    .hero h1 {
+      font-size: 1.75rem; font-weight: 800;
+      letter-spacing: -.03em; margin-top: 8px;
+      line-height: 1.2;
+    }
+    .hero-sub { font-size: .85rem; opacity: .75; margin-top: 6px; }
+    .hero-stats {
+      display: flex; gap: 10px; margin-top: 20px;
+    }
+    .stat-chip {
+      flex: 1;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .stat-chip .num { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
+    .stat-chip .lbl { font-size: .68rem; opacity: .65; margin-top: 2px; }
+
+    /* ── Day Segmented Control ── */
+    .day-seg-wrap { padding: 16px 16px 0; }
+    .day-seg {
+      display: flex;
+      background: var(--bg2);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .day-seg-btn {
+      flex: 1;
+      border: none; background: none;
+      padding: 10px 6px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all .25s cubic-bezier(.4,0,.2,1);
+      text-align: center;
+    }
+    .day-seg-btn .d-date { font-size: .82rem; font-weight: 700; color: var(--text2); display: block; }
+    .day-seg-btn.active {
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .day-seg-btn.active .d-date { color: var(--text); }
+    .day-seg-btn.active[data-day="0"] .d-date { color: var(--accent); }
+    .day-seg-btn.active[data-day="1"] .d-date { color: var(--blue); }
+    .day-seg-btn.active[data-day="2"] .d-date { color: var(--purple); }
+
+    /* ── Main tabs ── */
+    .main-tab { display: none; }
+    .main-tab.active {
+      display: block;
+      opacity: 1;
+      animation: fadeUp .3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-pad { padding: 16px; }
+
+    /* ── Timeline ── */
+    .day-summary {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; padding: 10px 14px;
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.03);
+    }
+    .day-summary-date { font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; }
+    .day-summary-weather {
+      text-align: right; font-size: .78rem; color: var(--text2); line-height: 1.5;
+    }
+    .day-summary-weather .w-main { font-weight: 700; color: var(--text); font-size: .85rem; }
+    .day-summary-weather .w-sub { font-size: .72rem; color: var(--text3); margin-top: 2px; }
+    .day-summary-weather.loading { color: var(--text3); font-size: .75rem; }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .tl-row {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .tl-time {
+      flex: 0 0 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      font-size: .9rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      text-align: center;
+      color: var(--text);
+    }
+    .tl-time.depart {
+      background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #1d4ed8;
+      font-size: .98rem;
+    }
+    .tl-time-sub {
+      font-size: .54rem;
+      font-weight: 800;
+      color: #1d4ed8;
+      margin-top: 3px;
+      letter-spacing: .08em;
+    }
+
+    .tl-card {
+      flex: 1;
+      min-width: 0;
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.03);
+      transition: transform .15s, box-shadow .2s, border-color .2s;
+    }
+    .tl-card.emphasis {
+      background: linear-gradient(135deg, #faf5ff 0%, #fff 60%);
+      border: 1.5px solid #ddd6fe;
+      border-left: 4px solid var(--purple);
+      box-shadow: 0 2px 12px rgba(124,58,237,.12);
+    }
+    .tl-card.emphasis .tl-title { color: #5b21b6; }
+    .tl-card.flight-depart.emphasis .tl-title { color: #1d4ed8; }
+    .tl-card:active { transform: scale(.985); }
+    .tl-card-head { display: flex; align-items: flex-start; gap: 10px; }
+    .tl-emoji {
+      font-size: 1.3rem; line-height: 1;
+      flex-shrink: 0;
+      width: 32px; text-align: center;
+    }
+    .tl-title { font-size: .88rem; font-weight: 700; line-height: 1.35; color: var(--text); }
+    .tl-desc { font-size: .76rem; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+    .tl-flight-dep {
+      font-size: 1.65rem; font-weight: 800; letter-spacing: -.03em;
+      color: var(--blue); line-height: 1.1;
+    }
+    .tl-flight-lbl {
+      font-size: .68rem; font-weight: 700; color: var(--text3);
+      margin-top: 2px; letter-spacing: .04em;
+    }
+    .tl-card.flight-depart {
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      border-color: #bfdbfe;
+    }
+    .tl-card.flight-depart.emphasis {
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--blue);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, .1);
+    }
+    .tl-card.flight-depart .tl-title {
+      color: #1d4ed8;
+    }
+    .tl-route {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      font-size: .74rem;
+      color: var(--text2);
+      line-height: 1.7;
+    }
+    .tl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .tl-tag {
+      font-size: .65rem; font-weight: 600;
+      padding: 3px 9px; border-radius: 6px;
+    }
+    .tl-tag.flight { background: var(--blue-soft); color: var(--blue); }
+
+    /* ── Cards generic ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.03);
+    }
+    .card-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: .95rem; font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .card-badge {
+      font-size: .68rem; font-weight: 600;
+      color: var(--green);
+      background: var(--green-soft);
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* ── Shop ranking ── */
+    .shop-store-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .shop-store-row:last-child { border-bottom: none; }
+    .shop-store-info { flex: 1; min-width: 0; }
+    .shop-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rank-num {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .rank-num.r1 { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+    .rank-num.r2 { background: linear-gradient(135deg, #e7e5e4, #d6d3d1); color: #57534e; }
+    .rank-num.r3 { background: linear-gradient(135deg, #fed7aa, #fdba74); color: #9a3412; }
+    .rank-num.rn { background: var(--bg2); color: var(--text3); }
+    .shop-stars {
+      font-size: .68rem; font-weight: 700;
+      color: #b45309; background: #fffbeb;
+      padding: 2px 7px; border-radius: 5px;
+    }
+    .shop-items {
+      font-size: .78rem; color: var(--text2);
+      margin-top: 6px; line-height: 1.45;
+    }
+
+    /* ── Food cards ── */
+    .food-card {
+      display: flex; gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .food-card:last-child { border-bottom: none; }
+    .food-emoji {
+      width: 44px; height: 44px;
+      background: var(--bg2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .food-area-title {
+      font-size: .72rem; font-weight: 700; color: var(--text3);
+      text-transform: uppercase; letter-spacing: .04em;
+      padding: 12px 0 6px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 4px;
+    }
+    .food-area-title:first-child { padding-top: 0; }
+    .food-store-row {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 14px 4px;
+      border-bottom: 1px solid var(--line);
+    }
+    .food-store-row:last-child { border-bottom: none; }
+    .food-store-body {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .food-store-info { flex: 1; min-width: 0; }
+    .food-store-foot {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .food-store-foot .rest-note {
+      flex: 1; min-width: 0; margin-top: 0;
+    }
+    .store-name { font-size: .92rem; font-weight: 700; line-height: 1.35; }
+    .store-name-jp { font-size: .74rem; font-weight: 500; color: var(--text3); margin-top: 2px; }
+    .store-meta { font-size: .74rem; color: var(--text3); margin-top: 3px; }
+    .store-menu { margin-top: 8px; }
+    .menu-label {
+      display: block;
+      font-size: .68rem; font-weight: 700; color: var(--text3);
+      margin-bottom: 6px; letter-spacing: .02em;
+    }
+    .menu-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .menu-tags.picks { margin-top: 8px; }
+    .menu-tag {
+      display: inline-flex; align-items: center;
+      font-size: .8rem; font-weight: 700; color: var(--text);
+      background: var(--amber-soft);
+      border: 1px solid #fcd34d;
+      padding: 5px 11px; border-radius: 999px;
+      line-height: 1.25;
+    }
+    .menu-tag.pick {
+      background: var(--accent-soft);
+      border-color: #fecdd3;
+      font-size: .74rem; font-weight: 600;
+    }
+    a.menu-tag.pick {
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+    }
+    a.menu-tag.pick:active {
+      opacity: .75;
+      transform: scale(.97);
+    }
+    .menu-tag-note {
+      margin-top: 6px;
+      font-size: .68rem; color: var(--text3); line-height: 1.4;
+    }
+    .rest-detail {
+      margin-top: 8px;
+      font-size: .72rem; color: var(--text2); line-height: 1.55;
+    }
+    .rest-line { display: flex; gap: 8px; margin-top: 3px; }
+    .rest-line:first-child { margin-top: 0; }
+    .rest-label {
+      flex-shrink: 0; width: 52px;
+      font-weight: 700; color: var(--text3); font-size: .68rem;
+    }
+    .rest-val { flex: 1; min-width: 0; }
+    .rest-note {
+      margin-top: 6px; padding: 6px 8px;
+      background: var(--bg2); border-radius: 6px;
+      font-size: .68rem; color: var(--text3); line-height: 1.45;
+    }
+    .food-picks {
+      margin-top: 8px;
+    }
+    .food-photo-cell { flex-shrink: 0; }
+    .food-photo-col {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      flex-shrink: 0;
+    }
+    .food-photo-wrap {
+      width: 76px; height: 76px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .food-photo {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .food-photo-wrap:not(.has-img) {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    .food-photo-wrap:not(.has-img) .food-photo { display: none; }
+    .food-links { display: flex; flex-direction: column; gap: 6px; align-items: stretch; width: 76px; }
+    .food-links .food-map-btn { width: 100%; }
+    .food-web-link {
+      display: inline-flex; align-items: center;
+      font-size: .68rem; font-weight: 600; color: var(--blue);
+      text-decoration: none; padding: 4px 8px;
+      background: var(--blue-soft, rgba(59,130,246,.1)); border-radius: 6px;
+    }
+    .food-disclaimer {
+      font-size: .68rem; color: var(--text3);
+      padding: 0 0 10px; line-height: 1.45;
+    }
+    .food-filters {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 0 0 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 6px;
+    }
+    .food-filter-btn {
+      display: inline-flex; align-items: center;
+      font-size: .78rem; font-weight: 700; color: var(--text);
+      background: var(--amber-soft);
+      border: 1px solid #fcd34d;
+      padding: 5px 11px; border-radius: 999px;
+      line-height: 1.25;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .food-filter-btn.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: #fff;
+    }
+    .food-filter-btn:active { opacity: .85; }
+    .food-empty {
+      padding: 24px 4px;
+      text-align: center;
+      font-size: .82rem;
+      color: var(--text3);
+    }
+    .store-day {
+      display: inline-block; font-size: .62rem; font-weight: 700;
+      background: var(--accent-soft); color: var(--accent);
+      padding: 2px 7px; border-radius: 5px; margin-left: 6px;
+    }
+    .food-desc { font-size: .76rem; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+    .food-card { cursor: default; }
+    a.food-card {
+      text-decoration: none; color: inherit;
+      transition: background .15s;
+      margin: 0 -8px; padding: 14px 8px;
+      border-radius: 10px;
+    }
+    a.food-card:active { background: var(--bg2); }
+    .food-card-inner { flex: 1; min-width: 0; }
+    .food-map-btn {
+      flex-shrink: 0;
+      text-align: center;
+      font-size: .72rem; font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-soft);
+      padding: 6px 10px; border-radius: 8px;
+      text-decoration: none; white-space: nowrap;
+    }
+    .shop-map-col {
+      flex-shrink: 0;
+      width: 76px;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+    .shop-map-col .food-map-btn { display: block; width: 100%; text-align: center; }
+    .map-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      text-decoration: none; color: var(--text);
+    }
+    .map-banner:active { opacity: .85; }
+    .map-banner-icon { font-size: 1.5rem; }
+    .map-banner-text { flex: 1; }
+    .map-banner-title { font-size: .88rem; font-weight: 700; }
+    .map-banner-sub { font-size: .72rem; color: var(--text2); margin-top: 2px; }
+    .map-banner-arrow { color: var(--blue); font-weight: 700; }
+    .stay-actions {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+    }
+    .stay-actions a {
+      font-size: .72rem; font-weight: 700; color: var(--blue);
+      background: var(--blue-soft); padding: 5px 10px; border-radius: 8px;
+      text-decoration: none;
+    }
+    .stay-actions a:active { opacity: .7; }
+    .tl-map {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .72rem; font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-soft);
+      padding: 5px 10px; border-radius: 8px;
+      text-decoration: none;
+    }
+    .tl-maps {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 8px;
+    }
+    .tl-map:active { opacity: .7; }
+
+    /* ── Info tab ── */
+    .flight-card {
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .flight-card.go {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+    .flight-card.back {
+      background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);
+    }
+    .flight-card::after {
+      content: "✈";
+      position: absolute; right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem; opacity: .12;
+    }
+    .flight-label { font-size: .68rem; font-weight: 600; opacity: .7; letter-spacing: .06em; }
+    .flight-route { font-size: .88rem; font-weight: 700; margin-top: 6px; opacity: .9; }
+    .flight-times {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 8px;
+    }
+    .flight-time-block { text-align: center; flex: 1; }
+    .flight-time-block .time {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+    .flight-time-block .airport {
+      font-size: .72rem;
+      font-weight: 600;
+      opacity: .75;
+      margin-top: 4px;
+    }
+    .flight-time-block .lbl {
+      font-size: .65rem;
+      opacity: .55;
+      margin-top: 2px;
+    }
+    .flight-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+    .flight-arrow .plane { font-size: 1rem; }
+    .flight-arrow .dur { font-size: .62rem; font-weight: 600; white-space: nowrap; }
+    .flight-meta {
+      font-size: .75rem;
+      opacity: .65;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .flight-warn {
+      font-size: .72rem; opacity: .65; margin-top: 8px;
+      padding-top: 8px; border-top: 1px solid rgba(255,255,255,.2);
+    }
+
+    .info-grid { display: flex; flex-direction: column; gap: 0; }
+    .info-item {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      gap: 16px;
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-key {
+      font-size: .8rem; color: var(--text3); font-weight: 500;
+      flex-shrink: 0;
+    }
+    .info-val {
+      font-size: .82rem; font-weight: 600;
+      text-align: right; line-height: 1.4;
+    }
+
+    .tip-card {
+      background: var(--amber-soft);
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .tip-card h4 { font-size: .82rem; font-weight: 700; color: var(--amber); }
+    .tip-card p { font-size: .78rem; color: var(--text2); margin-top: 6px; line-height: 1.65; }
+
+    /* ── Bottom Nav ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 12px calc(8px + var(--safe-b));
+      pointer-events: none;
+    }
+    .bottom-nav-inner {
+      display: flex;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: auto;
+      padding: 4px;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex; flex-direction: row; align-items: center; justify-content: center;
+      gap: 5px;
+      padding: 12px 6px;
+      border: none; background: none;
+      cursor: pointer;
+      border-radius: 16px;
+      transition: all .2s;
+      position: relative;
+    }
+    .nav-btn .nav-icon { font-size: 1.1rem; transition: transform .2s; flex-shrink: 0; order: 2; }
+    .nav-btn .nav-label { font-size: .72rem; font-weight: 700; color: var(--text3); transition: color .2s; order: 1; }
+    .nav-btn.active { background: var(--bg2); }
+    .nav-btn.active .nav-icon { transform: scale(1.1); }
+    .nav-btn.active .nav-label { color: var(--text); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+<noscript>
+  <div style="padding:20px;font-family:sans-serif;line-height:1.6">
+    <strong>JavaScript가 꺼져 있어요.</strong><br>
+    아이패드에서는 파일 미리보기가 아니라 <strong>Safari에서 열기</strong>를 선택해 주세요.
+  </div>
+</noscript>
+
+<div id="appError" class="app-error" role="alert"></div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>후쿠오카 여행</h1>
+    <div class="hero-sub">7/24(금) – 7/26(일) · 5명</div>
+    <div class="ios-hint">
+      📱 아이패드: 파일을 눌렀을 때 <strong>미리보기</strong>가 아니라<br>
+      <strong>공유(↗) → Safari에서 열기</strong>로 여세요.<br>
+      photos 폴더와 HTML을 <strong>같은 폴더</strong>에 두세요.
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="tab-schedule" class="main-tab active">
+  <div class="day-seg-wrap">
+    <div class="day-seg" id="daySeg"></div>
+  </div>
+  <div class="section-pad" id="dayPanels">
+    <div id="appLoading" class="app-loading">일정 불러오는 중…</div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div id="tab-shop" class="main-tab">
+  <div class="section-pad">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🛍️ 쇼핑 우선순위</div>
+      </div>
+      <div class="food-disclaimer">중요도·영업시간은 변경될 수 있어요 · 방문 전 한 번 더 확인</div>
+      <div id="shopList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOD -->
+<div id="tab-food" class="main-tab">
+  <div class="section-pad">
+    <a class="map-banner" href="https://www.google.com/maps/d/viewer?mid=1etuSuccB1YIWrVlqZx-XRdLh-tKgsZU" target="_blank" rel="noopener">
+      <span class="map-banner-icon">🗺️</span>
+      <div class="map-banner-text">
+        <div class="map-banner-title">후쿠오카 토벌전 · 전체 지도</div>
+        <div class="map-banner-sub">맛집 · 카페 · 쇼핑 · 오타쿠</div>
+      </div>
+      <span class="map-banner-arrow">→</span>
+    </a>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🍜 맛집 · 가게</div>
+      </div>
+      <div id="foodFilters" class="food-filters"></div>
+      <div id="foodList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO -->
+<div id="tab-info" class="main-tab">
+  <div class="section-pad">
+    <div class="flight-card go">
+      <div class="flight-label">가는편 · 7/24(금) · 제주항공</div>
+      <div class="flight-route">7C1403 · ICN T1 → FUK T1</div>
+      <div class="flight-times">
+        <div class="flight-time-block">
+          <div class="time">09:45</div>
+          <div class="airport">ICN T1</div>
+          <div class="lbl">출발</div>
+        </div>
+        <div class="flight-arrow">
+          <span class="plane">✈</span>
+          <span class="dur">1h 30m</span>
+        </div>
+        <div class="flight-time-block">
+          <div class="time">11:15</div>
+          <div class="airport">FUK T1</div>
+          <div class="lbl">도착</div>
+        </div>
+      </div>
+      <div class="flight-meta">직항 · 이코노미</div>
+      <div class="flight-warn">수하물 15kg 무료</div>
+    </div>
+    <div class="flight-card back">
+      <div class="flight-label">오는편 · 7/26(일) · 제주항공</div>
+      <div class="flight-route">7C1406 · FUK T1 → ICN T1</div>
+      <div class="flight-times">
+        <div class="flight-time-block">
+          <div class="time">17:45</div>
+          <div class="airport">FUK T1</div>
+          <div class="lbl">출발</div>
+        </div>
+        <div class="flight-arrow">
+          <span class="plane">✈</span>
+          <span class="dur">1h 30m</span>
+        </div>
+        <div class="flight-time-block">
+          <div class="time">19:15</div>
+          <div class="airport">ICN T1</div>
+          <div class="lbl">도착</div>
+        </div>
+      </div>
+      <div class="flight-meta">직항 · 이코노미</div>
+      <div class="flight-warn">공항 15:30~16:00 전 도착 권장</div>
+    </div>
+
+    <div class="map-banner stay-banner" id="stayBanner">
+      <span class="map-banner-icon">🏠</span>
+      <div class="map-banner-text">
+        <div class="map-banner-title">숙소</div>
+        <div class="map-banner-sub" data-stay-address></div>
+        <div class="map-banner-sub">아카사카역 도보 1분 · 7/24 16:00 체크인 · 7/26 09:00 체크아웃</div>
+        <div class="stay-actions">
+          <a data-stay-map href="#" target="_blank" rel="noopener">Google 지도 →</a>
+          <a data-stay-airbnb href="#" target="_blank" rel="noopener">Airbnb →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">🏠 숙소</div></div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-key">주소</span><span class="info-val" data-stay-address></span></div>
+        <div class="info-item"><span class="info-key">체크인</span><span class="info-val">7/24 16:00</span></div>
+        <div class="info-item"><span class="info-key">체크아웃</span><span class="info-val">7/26 09:00</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button type="button" class="nav-btn active" data-tab="schedule"><span class="nav-label">일정</span><span class="nav-icon">📅</span></button>
+    <button type="button" class="nav-btn" data-tab="shop"><span class="nav-label">쇼핑</span><span class="nav-icon">🛍️</span></button>
+    <button type="button" class="nav-btn" data-tab="food"><span class="nav-label">먹거리</span><span class="nav-icon">🍜</span></button>
+    <button type="button" class="nav-btn" data-tab="info"><span class="nav-label">정보</span><span class="nav-icon">✈️</span></button>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    label: "7/24", dow: "금", date: "2026-07-24", theme: "d0",
+    items: [
+      { time: "07:30", title: "인천공항 T1 도착", desc: "체크인 · 수하물(15kg) · 출국심사 · 면세점", cat: "flight" },
+      { time: "09:45", title: "인천 → 후쿠오카", desc: "", cat: "flight", tag: "important", depart: true },
+      { time: "11:15", title: "후쿠오카 공항 T1 도착", desc: "", cat: "flight" },
+      { time: "11:55", title: "지하철 → 아카사카", desc: "공항에서 숙소 방향 (~20분)", cat: "default" },
+      { time: "12:25", title: "숙소 · 짐 맡기기", desc: "체크인 16:00 — 짐만 맡기고 출발", cat: "home", tag: "important", place: "airbnb" },
+      { time: "13:00", title: "점심 · PARCO 푸드홀", desc: "고마사바 · 닭꼬치", cat: "food", place: "parco" },
+      { time: "14:00", title: "텐진 쇼핑", desc: "", cat: "shop", place: "beams" },
+      { time: "15:30", title: "포켓몬센터 + 치이카와랜드", desc: "", cat: "shop", places: ["pokemon", "chiikawa"] },
+      { time: "16:00", title: "재필 → 치이카와 영화", desc: "4시 편 / 나머지 쇼핑·카페 계속", cat: "default" },
+      { time: "17:30", title: "재필 합류 → 하카타", desc: "전철 이동", cat: "default" },
+      { time: "18:00", title: "ロピア 장보기", desc: "", cat: "shop", place: "lopia" },
+      { time: "19:00", title: "체크인 · 짐 정리", desc: "", cat: "home", tag: "important", place: "airbnb" },
+      { time: "19:30", title: "숙소 저녁식사", desc: "", cat: "food" },
+      { time: "23:30", title: "취침", desc: "", cat: "default" },
+    ]
+  },
+  {
+    label: "7/25", dow: "토", date: "2026-07-25", theme: "d1",
+    items: [
+      { time: "09:00", title: "기상", desc: "", cat: "default" },
+      { time: "10:00", title: "캐널시티 이동", desc: "", cat: "default" },
+      { time: "10:20", title: "캐널시티", desc: "", cat: "shop", place: "canal" },
+      { time: "12:30", title: "캐널시티 KUOHKA", desc: "그랜드 B1F · 21곳 · 1주년 세트(7/18~8/31) · 각자 골라 먹기", cat: "food", place: "kuohka" },
+      { time: "13:30", title: "요도바시 하카타", desc: "전자제품", cat: "shop" },
+      { time: "17:00", title: "숙소 귀환 · 휴식", desc: "", cat: "home", place: "airbnb" },
+      { time: "18:30", title: "ANSIC", desc: "鶏刺 · 博多料理 · 焼酎", cat: "food", place: "ansic" },
+      { time: "21:00", title: "텐진 밤거리", desc: "카페", cat: "default" },
+      { time: "23:00", title: "숙소", desc: "", cat: "home", place: "airbnb" },
+    ]
+  },
+  {
+    label: "7/26", dow: "일", date: "2026-07-26", theme: "d2",
+    items: [
+      { time: "08:30", title: "기상", desc: "", cat: "default" },
+      { time: "09:00", title: "체크아웃 · 짐 맡기기", desc: "", cat: "home", tag: "important", place: "airbnb" },
+      { time: "09:30", title: "마지막 쇼핑", desc: "과자 · 기념품", cat: "shop" },
+      { time: "12:30", title: "점심", desc: "우동 or 스시 · 텐진/하카타", cat: "food" },
+      { time: "13:30", title: "쇼핑 & 카페", desc: "못 산 것 마저 · 디저트", cat: "shop" },
+      { time: "15:00", title: "숙소 · 짐 찾기", desc: "체크아웃 짐 수령", cat: "home", tag: "important", place: "airbnb" },
+      { time: "15:30", title: "공항 이동", desc: "지하철 ~25분 · FUK T1", cat: "flight" },
+      { time: "16:00", title: "체크인 · 면세점", desc: "로이스 · 도쿄바나나 · 과자 · 향수", cat: "shop" },
+      { time: "17:45", title: "후쿠오카 → 인천", desc: "제주항공 · FUK T1", cat: "flight", tag: "important", depart: true },
+    ]
+  }
+];
+
+const SHOPS = [
+  {
+    rank: 1, stars: 5,
+    name: "BEAMS", nameJp: "ビームス 福岡",
+    items: "남녀 패션 · BEAMS 브랜드 · 가방 · 잡화",
+    address: "福岡市中央区天神2-11-1 福岡PARCO新館1-2F",
+    hours: "10:00~20:30",
+    closed: "불규칙 휴무 (파르코 휴무에 따름)",
+    place: "beams",
+    note: "숙소 도보 약 5분 · 최우선"
+  },
+  {
+    rank: 2, stars: 5,
+    name: "포켓몬센터", nameJp: "ポケモンセンターフクオカ",
+    items: "포켓몬 굿즈 · 플러시 · 카드 · 지역 한정",
+    address: "福岡市博多区博多駅中央街9-1 博多マルイ 2F",
+    hours: "10:00~21:00",
+    closed: "무휴 (마루이 휴무에 따름)",
+    place: "pokemon",
+    note: "博多駅 도보 3분 · 2025 리뉴얼"
+  },
+  {
+    rank: 3, stars: 4.5,
+    name: "치이카와랜드", nameJp: "ちいかわらんど 福岡パルコ店",
+    items: "치이카와 공식 굿즈 · 인형 · 가챠 · 한정",
+    address: "福岡市中央区天神2-11-1 福岡PARCO 本館8F",
+    hours: "10:00~20:30",
+    closed: "무휴 (파르코 휴무에 따름)",
+    place: "chiikawa",
+    note: "7/24 영화(16:00) · 혼잡 시整理券"
+  },
+  {
+    rank: 4, stars: 4,
+    name: "PARCO", nameJp: "福岡PARCO",
+    items: "패션 · 캐릭터 · POP UP · B1 푸드홀",
+    address: "福岡市中央区天神2-11-1",
+    hours: "物販 10:00~20:30 · 飲食 11:00~23:00 (매장별)",
+    closed: "시설 무휴 · 매장별 상이",
+    place: "parco",
+    note: "天神駅 직결 · BEAMS·치이카와同ビル"
+  },
+  {
+    rank: 5, stars: 4,
+    name: "SOLARIA", nameJp: "ソラリアプラザ",
+    items: "패션 · 잡화 · B2 식품 · 6-7F 레스토랑",
+    address: "福岡市中央区天神2-2-43",
+    hours: "物販 10:00~20:30 · B2 10:00~23:00 · 6F 11:00~23:30",
+    closed: "시설 무휴 · 매장별 상이",
+    place: "solaria",
+    note: "텐진 중심 · 지하철 직결"
+  },
+  {
+    rank: 6, stars: 3.5,
+    name: "Mina Tenjin", nameJp: "mina 天神",
+    items: "패션 · 잡화 · B1 슈퍼 · 7-8F 식당",
+    address: "福岡市中央区天神4-3-8",
+    hours: "B1 7:00~22:00 · 1-6F 10:00~20:00 · 7F 10:00~21:00",
+    closed: "시설 무휴 · 매장별 상이",
+    place: "mina",
+    note: "天神駅 도보 3분"
+  },
+  {
+    rank: 7, stars: 3.5,
+    name: "돈키호테", nameJp: "ドン・キホーテ 福岡天神本店",
+    items: "과자 · 기념품 · 전자 · 생활용품 · 의류",
+    address: "福岡市中央区今泉1-20-17",
+    hours: "24시간",
+    closed: "연중무휴 (점검 시 변동)",
+    place: "donki",
+    note: "새벽 방문 예정 · 24시간 · 면세 가능"
+  },
+];
+
+const AIRBNB_URL = "https://www.airbnb.co.kr/rooms/1421338729142089608?adults=5&check_in=2026-07-24&check_out=2026-07-26";
+const AIRBNB_ADDRESS = "Akasaka, Chuo Ward, Fukuoka, 810-0042, Japan";
+const AIRBNB_MAP_URL = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(AIRBNB_ADDRESS);
+const MAP_ALL = "https://www.google.com/maps/d/viewer?mid=1etuSuccB1YIWrVlqZx-XRdLh-tKgsZU";
+
+function mapSearch(p) {
+  const q = encodeURIComponent(p.query || p.name);
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+function gmap(p) {
+  if (p.url) return p.url;
+  return mapSearch(p);
+}
+
+const PLACES = {
+  parco:       { name: "파르코 텐진 후쿠오카", query: "福岡PARCO", lat: 33.5907445, lng: 130.3986652 },
+  beams:       { name: "BEAMS 후쿠오카", query: "ビームス 福岡", lat: 33.5909108, lng: 130.3981256 },
+  pokemon:     { name: "포켓몬센터 후쿠오카", query: "ポケモンセンターフクオカ", lat: 33.5890033, lng: 130.4192564 },
+  chiikawa:    { name: "치이카와랜드", query: "ちいかわらんど 福岡パルコ", lat: 33.590874, lng: 130.39855 },
+  lopia:       { name: "ロピア 博多", query: "ロピア 博多ヨドバシ", lat: 33.589886, lng: 130.420711 },
+  canal:       { name: "キャナルシティ博多", query: "キャナルシティ博多", lat: 33.5892, lng: 130.4117 },
+  kuohka:      { name: "캐널시티 KUOHKA", query: "KUOHKA キャナルシティ博多", lat: 33.5892, lng: 130.4117, web: "https://canalcity.co.jp/event/detail/76" },
+  ansic:       { name: "ANSIC", query: "焼酎酒場 ANSIC 福岡", lat: 33.5901532, lng: 130.4064083 },
+  gomasaba:    { name: "하카타 고마사바", query: "博多ごまさば 竜宮の鯖", lat: 33.5749158, lng: 130.5003189 },
+  kinshaba:    { name: "하카타 긴사바", query: "博多金鯖 今泉", lat: 33.5867398, lng: 130.4003599 },
+  torikawa:    { name: "하카타 토리카와야키 구", query: "博多とりかわ焼 隅", lat: 33.5833112, lng: 130.3963625 },
+  yokomasa:    { name: "요코마사", query: "牛タン焼専門店 ヨコマサ 福岡", lat: 33.5868552, lng: 130.3924595 },
+  maguro:      { name: "마구로토 고항 쿠로다한", query: "マグロとご飯 黒田飯 大名", lat: 33.5863653, lng: 130.3955307 },
+  maguro_h:    { name: "마구로토 고항 쿠로다한 하카타", query: "マグロとご飯 黒田飯 博多", lat: 33.5908081, lng: 130.4237194 },
+  meshiya:     { name: "메시야 코야마 파킹", query: "めしや コヤマパーキング", lat: 33.5844185, lng: 130.3953991 },
+  momochan:    { name: "뉴 모모짱", query: "酒場 ニュー百ちゃん 祇園", lat: 33.5928942, lng: 130.413617 },
+  tonkatsu:    { name: "돈카츠 와카바", query: "とんかつ わか葉 今泉", lat: 33.5925574, lng: 130.4021945 },
+  burger:      { name: "프리스코 버거", query: "frisco バーガー 福岡", lat: 33.5918162, lng: 130.3940924 },
+  solaria:     { name: "SOLARIA PLAZA", query: "ソラリアプラザ", lat: 33.587912, lng: 130.399012 },
+  mina:        { name: "mina 天神", query: "mina 天神", lat: 33.589487, lng: 130.401523 },
+  donki:       { name: "ドン・キホーテ 福岡天神", query: "ドン・キホーテ 福岡天神本店", lat: 33.586389, lng: 130.392722 },
+  seolhwa:     { name: "설화 (雪花)", query: "熟成肉&海鮮料理 雪花 春吉", lat: 33.587098, lng: 130.410521 },
+  airbnb:      { name: "숙소 (Airbnb)", query: AIRBNB_ADDRESS, url: AIRBNB_URL },
+};
+
+const FOOD_FILTER_ALIASES = {
+  "고마사바": ["고마사바", "시메사바"],
+  "닭꼬치": ["닭꼬치", "야키토리", "꼬치"],
+  "스시": ["스시", "참치", "사시미"],
+  "라멘": ["라멘", "중화"],
+  "디저트": ["디저트", "빵카페", "빵"],
+  "회": ["사시미", "참치", "고마사바", "시메사바"],
+  "구이": ["생선구이", "야키니쿠", "와규"],
+  "덮밥": ["덮밥", "돈부리", "마구로동", "참치 덮밥"],
+};
+
+const FOOD_FILTER_SKIP = new Set(["빵", "빵카페", "생선", "해산물", "사시미", "생선구이", "돈부리", "마구로동", "야키토리", "야키니쿠", "꼬치"]);
+
+const RESTAURANTS = [
+  {
+    area: "텐진",
+    name: "파르코 푸드홀", nameJp: "福岡PARCO 本館 B1F 飲食",
+    menu: "고마사바 · 닭꼬치 · 라멘 · 디저트 등 (매장별 상이)",
+    tags: ["고마사바", "닭꼬치", "라멘", "디저트"],
+    address: "福岡市中央区天神2-11-1 本館B1F",
+    hours: "11:00~ (매장별 상이 · 대체 22:00~23:00)",
+    closed: "시설 무휴 · 개별 매장은 불규칙 휴무",
+    place: "parco"
+  },
+  {
+    area: "텐진",
+    name: "하카타 긴사바", nameJp: "博多金鯖",
+    menu: "鯖刺5種盛 · ごまさば · 串焼 · 燻製 · 〆おにぎり",
+    tags: ["시메사바", "고마사바", "닭꼬치", "사시미"],
+    address: "福岡市中央区今泉1-13-29 福泉ビル別館",
+    hours: "17:00~01:00 (LO 0:00)",
+    closed: "불규칙 휴무",
+    place: "kinshaba"
+  },
+  {
+    area: "텐진",
+    name: "하카타 토리카와야키 구", nameJp: "博多とりかわ焼 隅(ぐ)",
+    menu: "とりかわ焼 · 고마사바 · 대根 튀김",
+    tags: ["닭꼬치", "고마사바", "튀김"],
+    address: "福岡市中央区今泉2-3-23 ARTK'S上人橋 1F",
+    hours: "평일 17:00~23:00 · 토·일 16:00~23:00",
+    closed: "불규칙 휴무 (수요일 휴무 사례 있음)",
+    place: "torikawa"
+  },
+  {
+    area: "텐진",
+    name: "요코마사", nameJp: "牛タン焼専門店 ヨコマサ",
+    menu: "牛タン焼 · ネギ塩タン",
+    tags: ["야키니쿠"],
+    address: "福岡市中央区大名1-8-33 大名エイトビル 2F",
+    hours: "확인 필요",
+    closed: "확인 필요",
+    place: "yokomasa",
+    note: "예약 권장 · 赤坂역 도보 5분"
+  },
+  {
+    area: "텐진",
+    name: "메시야 코야마 파킹", nameJp: "めしや コヤマパーキング",
+    menu: "와규 카츠샌드 · 장작구이 · 창작 소접시 · 사시미",
+    tags: ["와규", "구이", "사시미"],
+    address: "福岡市中央区警固1-6-4 KENT KEGO A",
+    hours: "13:00~23:00 (LO 20:00~20:30 · 재료 소진 시 조기 마감)",
+    closed: "불규칙 휴무",
+    place: "meshiya",
+    note: "예약 필수 · TableCheck · 百式 계열 · 메뉴 계절 변경"
+  },
+  {
+    area: "텐진",
+    name: "마구로토 고항 쿠로다한", nameJp: "マグロとご飯 黒田飯 大名店",
+    menu: "ねぎトロ丼 · 참치 덮밥 · 사시미",
+    tags: ["참치", "덮밥", "사시미"],
+    address: "福岡市中央区大名2-4-22 1F",
+    hours: "11:00~20:30",
+    closed: "화요일",
+    place: "maguro"
+  },
+  {
+    area: "텐진 · 春吉",
+    name: "ANSIC", nameJp: "焼酎酒場 ANSIC",
+    menu: "鶏刺 · 博多・鹿児島料理 · 焼酎130種",
+    tags: ["사시미", "닭꼬치", "고마사바"],
+    address: "福岡市中央区春吉3-12-35",
+    hours: "17:00~01:00",
+    closed: "불규칙 휴무",
+    place: "ansic"
+  },
+  {
+    area: "텐진 · 春吉",
+    name: "설화", nameJp: "熟成肉&海鮮料理 雪花",
+    menu: "熟成和牛炭焼 · 刺身盛 · ホタテ鍋 · もつ鍋",
+    tags: ["사시미", "와규", "鍋"],
+    address: "福岡市中央区春吉3-11-19 パノラマスクエア博多1F",
+    hours: "17:00~24:00 (LO 23:30)",
+    closed: "불규칙 휴무",
+    place: "seolhwa",
+    note: "한국어 가능 · 天神南駅 도보 6분"
+  },
+  {
+    area: "텐진",
+    name: "프리스코 버거", nameJp: "frisco バーガー",
+    menu: "햄버거 · 감자튀김",
+    tags: ["햄버거"],
+    address: "福岡市中央区舞鶴1-9-11 第2ハリウッドビル102",
+    hours: "11:30~21:00 (LO 20:30)",
+    closed: "화요일 (공휴일이면 수요일 휴무)",
+    place: "burger"
+  },
+  {
+    area: "텐진",
+    name: "돈카츠 와카바", nameJp: "とんかつ わか葉 2号店",
+    menu: "카츠덮밥(かつ玉) · 돈카츠 · 카레",
+    tags: ["돈카츠", "덮밥", "카레"],
+    address: "福岡市中央区今泉1-21-11 裸足ビル2F",
+    hours: "11:00~21:30 (LO 21:00)",
+    closed: "무휴",
+    place: "tonkatsu"
+  },
+  {
+    area: "하카타",
+    name: "캐널시티 KUOHKA", nameJp: "CANAL Gourmet Street KUOHKA",
+    address: "福岡市博多区住吉1-2 キャナルシティ博多 グランドビル B1F",
+    hours: "11:00~23:00 (매장별 상이)",
+    closed: "시설 무휴 · 매장별 상이",
+    place: "kuohka",
+    web: "https://canalcity.co.jp/event/detail/76",
+    picks: [
+      { name: "츠키지 청공 삼대목", cats: ["스시"], note: "예약 인기", query: "築地青空三代目 博多 KUOHKA" },
+      { name: "하카타 모츠나베 이케이", cats: ["모츠나베"], query: "博多もつ鍋 一慶 KUOHKA" },
+      { name: "기무라한텐", cats: ["라멘"], query: "Kimurahanten KUOHKA 博多" },
+      { name: "irori", cats: ["스테이크"], query: "irori DAISUKE TAKUBO KUOHKA" },
+      { name: "이시카와", cats: ["생선구이"], query: "焼きうおいし川 博多 KUOHKA" },
+      { name: "우나기 에이트", cats: ["장어"], query: "鰻のエイト キャナルシティ博多" },
+      { name: "시티 베이커리", cats: ["디저트", "빵카페"], query: "THE CITY BAKERY キャナルシティ博多" },
+    ],
+    note: "2025.7.18 오픈 · 일본·규슈 최초 입점 포함 · 1주년 세트(7/18~8/31)"
+  },
+  {
+    area: "하카타",
+    name: "로피아 博多", nameJp: "スーパー ロピア 博多ヨドバシ店",
+    menu: "와규 · 초밥 · 치킨",
+    tags: ["와규", "초밥", "치킨"],
+    address: "福岡市博多区博多駅中央街6-12 ヨドバシカメラ4F",
+    hours: "10:00~21:00",
+    closed: "무휴 (연말연시 변동)",
+    place: "lopia",
+    note: "7/24 숙소 저녁식사 재료 구매 · 매장에서 먹는 곳 아님"
+  },
+  {
+    area: "하카타",
+    name: "마구로토 고항 쿠로다한 하카타", nameJp: "マグロとご飯 黒田飯 博多店",
+    menu: "ねぎトロ丼 · 참치 덮밥 · 사시미",
+    tags: ["참치", "덮밥", "사시미"],
+    address: "福岡市博多区博多駅中央街6-17",
+    hours: "11:00~15:00 · 16:00~20:30",
+    closed: "불규칙 휴무",
+    place: "maguro_h"
+  },
+  {
+    area: "하카타 · 祇園",
+    name: "뉴 모모짱", nameJp: "酒場 ニュー百ちゃん",
+    menu: "創作酒肴 · ピザ · 白レバー刺 · 揚げ",
+    tags: ["創作", "튀김", "사시미"],
+    address: "福岡市博多区祇園町2-24 ルエメゾンロワール祇園102",
+    hours: "18:00~23:30",
+    closed: "불규칙 휴무",
+    place: "momochan"
+  },
+  {
+    area: "하카타",
+    name: "하카타 고마사바", nameJp: "博多ごまさば 竜宮の鯖",
+    menu: "ごまさば丼定食 · 茶漬け · 焼き・煮付",
+    tags: ["고마사바", "덮밥", "定食"],
+    address: "福岡市糟屋郡宇美町宇美5-11-1",
+    hours: "11:00~15:00",
+    closed: "월요일",
+    place: "gomasaba",
+    note: "시내에서 차로 약 30분 · 당일 코스에 넣기엔 멀 수 있음"
+  },
+];
+
+function assetPath(rel) {
+  try {
+    return new URL(rel, document.baseURI).href;
+  } catch (e) {
+    return rel;
+  }
+}
+
+function foodPhotoSrc(f) {
+  if (f.photo) return assetPath(f.photo);
+  if (f.place) return assetPath(`photos/${f.place}.jpg`);
+  return "";
+}
+
+function foodPhotoHtml(f) {
+  const src = foodPhotoSrc(f);
+  if (!src) {
+    return `<div class="food-photo-wrap"></div>`;
+  }
+  return `<div class="food-photo-wrap has-img">
+    <img class="food-photo" src="${src}" alt="" loading="lazy" onerror="this.parentElement.classList.remove('has-img')">
+  </div>`;
+}
+
+function mapLink(key) {
+  const p = PLACES[key];
+  if (!p) return "";
+  if (key === "airbnb") {
+    return `<a class="tl-map" href="${AIRBNB_MAP_URL}" target="_blank" rel="noopener">숙소</a>`;
+  }
+  return `<a class="tl-map" href="${mapSearch(p)}" target="_blank" rel="noopener">${p.name}</a>`;
+}
+
+function initStayLinks() {
+  document.querySelectorAll("[data-stay-address]").forEach(el => { el.textContent = AIRBNB_ADDRESS; });
+  document.querySelectorAll("[data-stay-map]").forEach(el => { el.href = AIRBNB_MAP_URL; });
+  document.querySelectorAll("[data-stay-airbnb]").forEach(el => { el.href = AIRBNB_URL; });
+}
+
+function mapLinks(item) {
+  const keys = item.places || (item.place ? [item.place] : []);
+  const links = keys.map(mapLink).filter(Boolean);
+  if (!links.length) return "";
+  return `<div class="tl-maps">${links.join("")}</div>`;
+}
+
+function restDetail(label, val) {
+  return `<div class="rest-line"><span class="rest-label">${label}</span><span class="rest-val">${val}</span></div>`;
+}
+
+function menuTagsHtml(menu) {
+  if (!menu) return "";
+  const parts = menu.split(" · ").map(s => s.trim()).filter(Boolean);
+  const tags = [];
+  let note = "";
+  parts.forEach((part, i) => {
+    if (i === parts.length - 1) {
+      const m = part.match(/^(.+?)\s+(등|等)(\s*\(.+\))?$/);
+      if (m) {
+        tags.push(m[1]);
+        note = m[2] + (m[3] || "");
+        return;
+      }
+    }
+    tags.push(part);
+  });
+  return `<div class="store-menu">
+    <div class="menu-tags">${tags.map(t => `<span class="menu-tag">${t}</span>`).join("")}</div>
+    ${note ? `<div class="menu-tag-note">${note}</div>` : ""}
+  </div>`;
+}
+
+function menuPicksHtml(picks) {
+  if (!picks || !picks.length) return "";
+  return `<div class="store-menu">
+    <div class="menu-tags">${picks.map(pickTagHtml).join("")}</div>
+  </div>`;
+}
+
+function pickLabel(p) {
+  if (typeof p === "string") return p;
+  if (p.label) return p.label;
+  if (p.name && p.cats) {
+    const cats = p.cats.join(" > ");
+    return p.note ? `${p.name} — ${cats} (${p.note})` : `${p.name} — ${cats}`;
+  }
+  return p.name || "";
+}
+
+function pickTagHtml(p) {
+  const label = pickLabel(p);
+  if (typeof p === "string" || !p.query) {
+    return `<span class="menu-tag pick">${label}</span>`;
+  }
+  return `<a class="menu-tag pick" href="${mapSearch({ query: p.query })}" target="_blank" rel="noopener">${label}</a>`;
+}
+
+function normalizeFoodTag(t) {
+  if (t === "빵" || t === "빵카페") return "디저트";
+  if (t === "생선" || t === "해산물") return "사시미";
+  if (t === "돈부리" || t === "마구로동") return "덮밥";
+  if (t === "야키토리" || t === "꼬치") return "닭꼬치";
+  return t;
+}
+
+function getRestFilterTags(f) {
+  const tags = new Set();
+  const add = t => tags.add(normalizeFoodTag(t));
+  (f.tags || []).forEach(add);
+  (f.picks || []).forEach(p => {
+    if (p.cats) p.cats.forEach(add);
+  });
+  return [...tags];
+}
+
+let activeFoodFilter = "all";
+
+const FOOD_FILTER_PRIORITY = [
+  "고마사바", "시메사바", "닭꼬치", "라멘", "스시", "회", "구이", "모츠나베", "스테이크",
+  "장어", "디저트", "덮밥", "햄버거", "돈카츠", "참치", "와규", "치킨",
+];
+
+function buildFoodFilterList() {
+  const set = new Set();
+  RESTAURANTS.forEach(f => getRestFilterTags(f).forEach(t => set.add(t)));
+  Object.keys(FOOD_FILTER_ALIASES).forEach(key => {
+    if (RESTAURANTS.some(f => restMatchesFoodFilter(f, key))) set.add(key);
+  });
+  const ordered = FOOD_FILTER_PRIORITY.filter(t => set.has(t) && !FOOD_FILTER_SKIP.has(t));
+  const rest = [...set].filter(t => !FOOD_FILTER_PRIORITY.includes(t) && !FOOD_FILTER_SKIP.has(t)).sort((a, b) => a.localeCompare(b, "ko"));
+  return ordered.concat(rest);
+}
+
+function restMatchesFoodFilter(f, filter) {
+  if (!filter || filter === "all") return true;
+  const tags = getRestFilterTags(f);
+  const keys = FOOD_FILTER_ALIASES[filter] || [filter];
+  return tags.some(t => keys.some(k => t === k || t.includes(k)));
+}
+
+function renderFoodFilters() {
+  const el = document.getElementById("foodFilters");
+  if (!el) return;
+  const filters = buildFoodFilterList();
+  el.innerHTML =
+    `<button type="button" class="food-filter-btn${activeFoodFilter === "all" ? " active" : ""}" data-filter="all">전체</button>` +
+    filters.map(f =>
+      `<button type="button" class="food-filter-btn${activeFoodFilter === f ? " active" : ""}" data-filter="${f}">${f}</button>`
+    ).join("");
+  el.querySelectorAll(".food-filter-btn").forEach(btn => {
+    btn.onclick = () => {
+      activeFoodFilter = btn.dataset.filter;
+      renderFoodFilters();
+      renderFoodList();
+    };
+  });
+}
+
+function renderFoodList() {
+  const el = document.getElementById("foodList");
+  const list = RESTAURANTS.filter(f => restMatchesFoodFilter(f, activeFoodFilter));
+  if (!list.length) {
+    el.innerHTML = `<div class="food-empty">해당 메뉴 가게가 없어요</div>`;
+    return;
+  }
+  const groups = {};
+  list.forEach((f, i) => {
+    if (!groups[f.area]) groups[f.area] = [];
+    groups[f.area].push({ ...f, idx: i });
+  });
+
+  el.innerHTML = Object.entries(groups).map(([area, items]) => `
+    <div class="food-area-group">
+      <div class="food-area-title">${area}</div>
+      ${items.map(f => {
+        const p = f.place ? PLACES[f.place] : null;
+        const mapBtn = p ? (p.url
+          ? `<a class="food-map-btn" href="${p.url}" target="_blank" rel="noopener">Airbnb →</a>`
+          : `<a class="food-map-btn" href="${mapSearch(p)}" target="_blank" rel="noopener">지도 →</a>`) : "";
+        const webUrl = f.web || (p && p.web);
+        const photo = foodPhotoHtml(f).replace("food-photo-wrap", "food-photo-wrap food-photo-cell");
+        const linksHtml = `${mapBtn}${webUrl ? `<a class="food-web-link" href="${webUrl}" target="_blank" rel="noopener">공식 →</a>` : ""}`;
+        const infoHtml = `<div class="food-store-info">
+              <div class="store-name">${f.name}</div>
+              ${f.picks ? menuPicksHtml(f.picks) : menuTagsHtml(f.menu)}
+              <div class="rest-detail">
+                ${restDetail("영업", f.hours)}
+                ${restDetail("휴무", f.closed)}
+              </div>
+            </div>`;
+        if (f.note) {
+          return `<div class="food-store-row">
+            <div class="food-store-body">
+              ${infoHtml}
+              ${photo}
+            </div>
+            <div class="food-store-foot">
+              <div class="rest-note">${f.note}</div>
+              ${linksHtml ? `<div class="food-links">${linksHtml}</div>` : ""}
+            </div>
+          </div>`;
+        }
+        return `<div class="food-store-row">
+          <div class="food-store-body">
+            ${infoHtml}
+            <div class="food-photo-col">
+              ${photo}
+              ${linksHtml ? `<div class="food-links">${linksHtml}</div>` : ""}
+            </div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+  `).join("");
+}
+
+const TRIP_WEATHER = {
+  "2026-07-24": { e:"⛅", l:"구름 조금", tmax:33, tmin:27, rain:30 },
+  "2026-07-25": { e:"⛅", l:"흐리고 때때로 갬", tmax:32, tmin:27, rain:30 },
+  "2026-07-26": { e:"⛅", l:"흐리고 때때로 갬", tmax:32, tmin:26, rain:30 },
+};
+
+function weatherHtml(w) {
+  return `<div class="w-main">${w.e} ${w.l}</div><div class="w-sub">${w.tmin}~${w.tmax}°C · ☔ ${w.rain}%</div><div class="w-sub">7/21 Google·tenki.jp · <a href="https://www.google.com/search?q=후쿠오카+날씨" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">재확인 →</a></div>`;
+}
+
+function weatherForDate(date) {
+  const w = TRIP_WEATHER[date];
+  if (!w) {
+    return `<a href="https://www.google.com/search?q=후쿠오카+${date}+날씨" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;font-size:.75rem;">Google 날씨 →</a>`;
+  }
+  return weatherHtml(w);
+}
+
+function getEmoji(cat) {
+  return "";
+}
+
+function cleanTitle(title) {
+  return title
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
+    .replace(/[\u2600-\u27BF\uFE0F]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function showAppError(msg) {
+  const el = document.getElementById("appError");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add("show");
+}
+
+function clearAppLoading() {
+  const el = document.getElementById("appLoading");
+  if (el) el.remove();
+}
+
+function renderDays() {
+  const seg = document.getElementById("daySeg");
+  const panels = document.getElementById("dayPanels");
+  if (!seg || !panels) return;
+  clearAppLoading();
+  seg.innerHTML = "";
+  panels.querySelectorAll(".panel").forEach(p => p.remove());
+  DAYS.forEach((day, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "day-seg-btn" + (i===0?" active":"");
+    btn.dataset.day = i;
+    btn.innerHTML = `<span class="d-date">${day.label} ${day.dow}</span>`;
+    btn.onclick = () => switchDay(i);
+    seg.appendChild(btn);
+
+    const panel = document.createElement("div");
+    panel.id = "day-"+i;
+    panel.className = "panel" + (i===0?" active":"");
+    panel.innerHTML = `
+      <div class="day-summary">
+        <div class="day-summary-date">${day.label} (${day.dow})</div>
+        <div class="day-summary-weather day-weather" data-date="${day.date}">${weatherForDate(day.date)}</div>
+      </div>
+      <div class="timeline">${day.items.map(it => {
+        const title = cleanTitle(it.title);
+        const desc = it.desc ? cleanTitle(it.desc) : "";
+        const cardCls = `tl-card ${it.cat}${it.tag==='important'?' emphasis':''}${it.depart?' flight-depart':''}`;
+        const body = `<div class="tl-title">${title}</div>${desc?`<div class="tl-desc">${desc}</div>`:""}${mapLinks(it)}`;
+        const timeHtml = `<div class="tl-time${it.depart?" depart":""}">${it.time}${it.depart?`<span class="tl-time-sub">출발</span>`:""}</div>`;
+        const cardHtml = `<div class="${cardCls}">${body}</div>`;
+        return `<div class="tl-row">${timeHtml}${cardHtml}</div>`;
+      }).join("")}
+      </div>`;
+    panels.appendChild(panel);
+  });
+}
+
+function switchDay(i) {
+  document.querySelectorAll(".day-seg-btn").forEach((b,j) => b.classList.toggle("active", j===i));
+  document.querySelectorAll(".panel").forEach((p,j) => p.classList.toggle("active", j===i));
+}
+
+function renderShops() {
+  document.getElementById("shopList").innerHTML = SHOPS.map((s) => {
+    const rc = s.rank===1?"r1":s.rank===2?"r2":s.rank===3?"r3":"rn";
+    const p = s.place ? PLACES[s.place] : null;
+    const mapBtn = p ? `<a class="food-map-btn" href="${mapSearch(p)}" target="_blank" rel="noopener">지도 →</a>` : "";
+    return `<div class="shop-store-row">
+      <div class="rank-num ${rc}">${s.rank}</div>
+      <div class="shop-store-info">
+        <div class="shop-head">
+          <div class="store-name">${s.name}</div>
+          <span class="shop-stars">⭐ ${s.stars}/5</span>
+        </div>
+        <div class="shop-items">🛍 ${s.items}</div>
+        <div class="rest-detail">
+          ${restDetail("위치", s.address)}
+          ${restDetail("영업", s.hours)}
+          ${restDetail("휴무", s.closed)}
+        </div>
+        ${s.note?`<div class="rest-note">${s.note}</div>`:""}
+      </div>
+      ${mapBtn ? `<div class="shop-map-col">${mapBtn}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+function bindNav() {
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".main-tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = document.getElementById("tab-" + btn.dataset.tab);
+      if (tab) tab.classList.add("active");
+    });
+  });
+}
+
+function initApp() {
+  try {
+    renderDays();
+    renderShops();
+    renderFoodFilters();
+    renderFoodList();
+    initStayLinks();
+    bindNav();
+  } catch (err) {
+    console.error(err);
+    showAppError("앱을 불러오지 못했어요. Safari에서 파일을 직접 열었는지, photos 폴더가 함께 있는지 확인해 주세요.");
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
